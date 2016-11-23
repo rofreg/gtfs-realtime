@@ -29,14 +29,17 @@ module GTFS
       def configure
         yield(configuration)
 
-        load_realtime_feed!
         load_static_feed!
+        refresh_realtime_feed!
       end
 
-      def load_static_feed!
-        @static_data = GTFS::Source.build(@configuration.static_feed, {strict: false})
+      def load_static_feed!(force: false)
+        return if !force && GTFS::Realtime::Route.count > 0
+
+        @static_data = GTFS::Source.build(@configuration.static_feed)
 
         GTFS::Realtime::Model.db.transaction do
+          GTFS::Realtime::Route.dataset.delete
           GTFS::Realtime::Route.multi_insert(
             static_data.routes.collect do |route|
               {
@@ -48,6 +51,7 @@ module GTFS
             end
           )
 
+          GTFS::Realtime::Stop.dataset.delete
           GTFS::Realtime::Stop.multi_insert(
             static_data.stops.collect do |stop|
               {
@@ -59,6 +63,7 @@ module GTFS
             end
           )
 
+          GTFS::Realtime::StopTime.dataset.delete
           GTFS::Realtime::StopTime.multi_insert(
             static_data.stop_times.collect do |stop_time|
               {
@@ -71,6 +76,7 @@ module GTFS
             end
           )
 
+          GTFS::Realtime::Trip.dataset.delete
           GTFS::Realtime::Trip.multi_insert(
             static_data.trips.collect do |trip|
               {
@@ -87,12 +93,13 @@ module GTFS
         end
       end
 
-      def load_realtime_feed!
+      def refresh_realtime_feed!
         trip_updates = get_entities(@configuration.trip_updates_feed)
         vehicle_positions = get_entities(@configuration.vehicle_positions_feed)
         alerts = get_entities(@configuration.service_alerts_feed)
 
         GTFS::Realtime::Model.db.transaction do
+          GTFS::Realtime::TripUpdate.dataset.delete
           GTFS::Realtime::TripUpdate.multi_insert(
             trip_updates.collect do |trip_update|
               {
@@ -103,6 +110,7 @@ module GTFS
             end
           )
 
+          GTFS::Realtime::StopTimeUpdate.dataset.delete
           GTFS::Realtime::StopTimeUpdate.multi_insert(
             trip_updates.collect do |trip_update|
               trip_update.trip_update.stop_time_update.collect do |stop_time_update|
@@ -126,6 +134,8 @@ module GTFS
       private
 
       def get_entities(path)
+        return [] if path.nil? || path.blank?
+
         data = Net::HTTP.get(URI.parse(path))
         feed = Transit_realtime::FeedMessage.decode(data)
         feed.entity   # array of entities

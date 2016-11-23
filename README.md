@@ -32,10 +32,12 @@ GTFS::Realtime.configure do |config|
   config.service_alerts_feed = "http://realtime.ripta.com:81/api/servicealerts"
 end
 
-# After calling 'configure', the gem loads all relevant GTFS info into an in-memory database.
+
+# After calling 'configure', the gem loads all relevant GTFS info into a database.
 # This may take some time (up to a minute) depending on the size of the input data.
-# In the future, we hope to support a persistent database option as an alternative to the
-# in-memory database, so that this long initialization does not have to happen on every boot.
+# By default, gtfs-realtime uses an in-memory database, which requires reloading all
+# data from scratch on each launch. If you'd like to use a persistent database instead,
+# set the 'GTFS_DATABASE_PATH' environment variable, and a SQLite DB will be generated.
 
 @nearby = GTFS::Realtime::Stop.nearby(41.834521, -71.396906)
 stop = @nearby.first
