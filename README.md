@@ -32,6 +32,11 @@ GTFS::Realtime.configure do |config|
   config.service_alerts_feed = "http://realtime.ripta.com:81/api/servicealerts"
 end
 
+# After calling 'configure', the gem loads all relevant GTFS info into an in-memory database.
+# This may take some time (up to a minute) depending on the size of the input data.
+# In the future, we hope to support a persistent database option as an alternative to the
+# in-memory database, so that this long initialization does not have to happen on every boot.
+
 @nearby = GTFS::Realtime::Stop.nearby(41.834521, -71.396906)
 stop = @nearby.first
 upcoming_bus = stop.stop_time_updates.first
