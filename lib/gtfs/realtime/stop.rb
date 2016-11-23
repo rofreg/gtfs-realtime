@@ -1,29 +1,28 @@
-require "gtfs/realtime/stop/time_update"
-
 module GTFS
   class Realtime
-    class Stop
-      attr_accessor :id, :name, :latitude, :longitude
+    class Stop < GTFS::Realtime::Model
+      one_to_many :stop_times
+      one_to_many :stop_time_updates
+      many_to_many :trip_updates, join_table: :stop_time_updates
+      many_to_many :trips, join_table: :stop_times
+      many_through_many :routes, through: [
+        [:stop_times, :stop_id, :trip_id],
+        [:trips, :id, :route_id]
+      ]
+      many_through_many :active_routes, class: GTFS::Realtime::Route, through: [
+        [:stop_time_updates, :stop_id, :trip_update_id],
+        [:trip_updates, :id, :route_id]
+      ]
 
-      def initialize(gtfs, stop)
-        @gtfs = gtfs
-        @id = stop.id.strip
-        @name = stop.name.strip
-        @latitude = stop.lat.to_f
-        @longitude = stop.lon.to_f
-      end
+      def self.nearby(latitude, longitude)
+        # TODO: this math is terrible! It'll fail for various edge cases.
+        # (e.g. close to the poles, overlapping to the prime meridian)
+        # That said, it's an okay approximation within the United States.
 
-      def trip_updates
-        # find live trip updates that include this stop
-        @gtfs.trip_updates.reject(&:is_deleted).select do |trip_update|
-          trip_update.trip_update.stop_time_update.find{|stu| stu.stop_id.strip == id}
-        end.collect do |trip_update|
-          GTFS::Realtime::Stop::TimeUpdate.new(@gtfs, trip_update.trip_update, id)
+        all.select do |stop|
+          (stop.latitude - latitude).abs < 0.01 &&
+            (stop.longitude - longitude).abs < 0.01
         end
-      end
-
-      def inspect
-        string = "#<Stop:#{id} \"#{name}\">"
       end
     end
   end

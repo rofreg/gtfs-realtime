@@ -36,4 +36,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "gtfs-realtime-bindings"
   spec.add_dependency "gtfs"
+  spec.add_dependency "sequel"
+  spec.add_dependency "sqlite3"
 end

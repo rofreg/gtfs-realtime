@@ -1,65 +1,135 @@
 require "google/transit/gtfs-realtime.pb"
 require "gtfs"
+require "sequel"
+require "sqlite3"
 
-require "gtfs/realtime/nearby"
+# we must load our Sequel DB schema first
+require "gtfs/realtime/db_schema"
+
+require "gtfs/gtfs_gem_patch"
+require "gtfs/realtime/configuration"
+require "gtfs/realtime/route"
 require "gtfs/realtime/stop"
+require "gtfs/realtime/stop_time"
+require "gtfs/realtime/stop_time_update"
 require "gtfs/realtime/trip"
+require "gtfs/realtime/trip_update"
 require "gtfs/realtime/version"
 
 module GTFS
   class Realtime
-    extend Forwardable
-    include Nearby
+    # This is a singleton object, so everything will be on the class level
+    class << self
+      attr_accessor :configuration, :static_data
 
-    TRIP_UPDATES_FEED = "/api/tripupdates"
-    VEHICLE_POSITIONS_FEED = "/api/vehiclepositions"
-    SERVICE_ALERTS_FEED = "/api/servicealerts"
-
-    def_delegators :@static_source, :routes, :shapes, :stops, :stop_times, :trips
-
-    def initialize(gtfs_static_feed, gtfs_realtime_root_url)
-      @static_source = GTFS::Source.build(gtfs_static_feed)
-      @root_url = gtfs_realtime_root_url
-    end
-
-    def update!
-      @trip_updates = @vehicle_positions = @alerts = nil
-    end
-
-    def static_source
-      @static_source
-    end
-
-    def trip_updates
-      @trip_updates ||= get_entities(TRIP_UPDATES_FEED)
-    end
-
-    def vehicle_positions
-      @vehicle_positions ||= get_entities(VEHICLE_POSITIONS_FEED)
-    end
-
-    def alerts
-      @alerts ||= get_entities(SERVICE_ALERTS_FEED)
-    end
-
-    def stops
-      static_source.stops.collect do |stop|
-        GTFS::Realtime::Stop.new(self, stop)
+      def configuration
+        @configuration ||= Configuration.new
       end
-    end
 
-    def trips
-      static_source.trips.collect do |trip|
-        GTFS::Realtime::Trip.new(self, trip)
+      def configure
+        yield(configuration)
+
+        load_realtime_feed!
+        load_static_feed!
       end
-    end
 
-    private
+      def load_static_feed!
+        @static_data = GTFS::Source.build(@configuration.static_feed, {strict: false})
 
-    def get_entities(path)
-      data = Net::HTTP.get(URI.parse(@root_url+path))
-      feed = Transit_realtime::FeedMessage.decode(data)
-      feed.entity   # array of entities
+        GTFS::Realtime::Model.db.transaction do
+          GTFS::Realtime::Route.multi_insert(
+            static_data.routes.collect do |route|
+              {
+                id: route.id.strip,
+                short_name: route.short_name,
+                long_name: route.long_name,
+                url: route.url
+              }
+            end
+          )
+
+          GTFS::Realtime::Stop.multi_insert(
+            static_data.stops.collect do |stop|
+              {
+                id: stop.id.strip,
+                name: stop.name,
+                latitude: stop.lat.to_f,
+                longitude: stop.lon.to_f
+              }
+            end
+          )
+
+          GTFS::Realtime::StopTime.multi_insert(
+            static_data.stop_times.collect do |stop_time|
+              {
+                stop_id: stop_time.stop_id.strip,
+                trip_id: stop_time.trip_id.strip,
+                arrival_time: stop_time.arrival_time,
+                departure_time: stop_time.departure_time,
+                stop_sequence: stop_time.stop_sequence.to_i
+              }
+            end
+          )
+
+          GTFS::Realtime::Trip.multi_insert(
+            static_data.trips.collect do |trip|
+              {
+                id: trip.id.strip,
+                headsign: trip.headsign.strip,
+                route_id: trip.route_id.strip,
+                service_id: trip.service_id.strip,
+                shape_id: trip.shape_id.strip
+              }
+            end
+          )
+
+          # TODO: handle shapes
+        end
+      end
+
+      def load_realtime_feed!
+        trip_updates = get_entities(@configuration.trip_updates_feed)
+        vehicle_positions = get_entities(@configuration.vehicle_positions_feed)
+        alerts = get_entities(@configuration.service_alerts_feed)
+
+        GTFS::Realtime::Model.db.transaction do
+          GTFS::Realtime::TripUpdate.multi_insert(
+            trip_updates.collect do |trip_update|
+              {
+                id: trip_update.id.strip,
+                trip_id: trip_update.trip_update.trip.trip_id.strip,
+                route_id: trip_update.trip_update.trip.route_id.strip
+              }
+            end
+          )
+
+          GTFS::Realtime::StopTimeUpdate.multi_insert(
+            trip_updates.collect do |trip_update|
+              trip_update.trip_update.stop_time_update.collect do |stop_time_update|
+                {
+                  trip_update_id: trip_update.id.strip,
+                  stop_id: stop_time_update.stop_id.strip,
+                  arrival_delay: stop_time_update.arrival ? stop_time_update.arrival.delay : nil,
+                  arrival_time: stop_time_update.arrival ? stop_time_update.arrival.time : nil,
+                  departure_delay: stop_time_update.departure ? stop_time_update.departure.delay : nil,
+                  departure_time: stop_time_update.departure ? stop_time_update.departure.time : nil,
+                }
+              end
+            end.flatten
+          )
+
+          # TODO: load vehicle positions
+          # TODO: load service alerts
+        end
+      end
+
+      private
+
+      def get_entities(path)
+        data = Net::HTTP.get(URI.parse(path))
+        feed = Transit_realtime::FeedMessage.decode(data)
+        feed.entity   # array of entities
+      end
     end
   end
 end

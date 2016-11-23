@@ -23,10 +23,20 @@ Or install it yourself as:
 TODO: add more instructions here. Basic functionality currently works like this:
 
 ```
-  gtfs = GTFS::Realtime.new("http://www.ripta.com/googledata/current/google_transit.zip", "http://realtime.ripta.com")
-  nearby = gtfs.nearby(41.834521, -71.396906)
-  upcoming_bus = nearby[0].trip_updates.first
-  trip_info = upcoming_bus.trip_info
+require 'gtfs-realtime'
+
+GTFS::Realtime.configure do |config|
+  config.static_feed = "http://www.ripta.com/googledata/current/google_transit.zip"
+  config.trip_updates_feed = "http://realtime.ripta.com:81/api/tripupdates"
+  config.vehicle_positions_feed = "http://realtime.ripta.com:81/api/vehiclepositions"
+  config.service_alerts_feed = "http://realtime.ripta.com:81/api/servicealerts"
+end
+
+@nearby = GTFS::Realtime::Stop.nearby(41.834521, -71.396906)
+stop = @nearby.first
+upcoming_bus = stop.stop_time_updates.first
+trip_info = upcoming_bus.trip
+route_info = upcoming_bus.route
 ```
 
 ## Development

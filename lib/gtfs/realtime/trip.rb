@@ -1,30 +1,10 @@
-require "gtfs/realtime/stop/time_update"
-
 module GTFS
   class Realtime
-    class Trip
-      attr_accessor :id, :headsign, :route_id, :service_id, :shape_id
+    class Trip < GTFS::Realtime::Model
+      many_to_one :route
+      many_to_many :stops, join_table: :stop_times
 
-      def initialize(gtfs, trip)
-        @gtfs = gtfs
-        @id = trip.id.strip
-        @headsign = trip.headsign.strip
-        @route_id = trip.route_id.strip
-        @service_id = trip.service_id.strip
-        @shape_id = trip.shape_id.strip
-      end
-
-      def route
-        raise "TODO"
-      end
-
-      def shape
-        raise "TODO"
-      end
-
-      def inspect
-        string = "#<Trip:#{id} \"#{headsign}\">"
-      end
+      # TODO: find shapes by shape_id
     end
   end
 end
