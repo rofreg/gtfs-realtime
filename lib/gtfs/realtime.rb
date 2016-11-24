@@ -4,7 +4,7 @@ require "sequel"
 require "sqlite3"
 
 # we must load our Sequel DB schema first
-require "gtfs/realtime/db_schema"
+require "gtfs/realtime/database"
 
 require "gtfs/gtfs_gem_patch"
 require "gtfs/realtime/configuration"
