@@ -20,7 +20,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: add more instructions here. Basic functionality currently works like this:
+Basic functionality currently works like this:
 
 ```
 require 'gtfs-realtime'

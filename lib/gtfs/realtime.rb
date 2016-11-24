@@ -91,7 +91,7 @@ module GTFS
             end
           )
 
-          # TODO: handle shapes
+          # TODO: load shapes
         end
       end
 

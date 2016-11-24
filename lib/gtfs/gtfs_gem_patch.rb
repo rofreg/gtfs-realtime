@@ -1,4 +1,5 @@
 # TODO: remove this once my PR is accepted and a gtfs gem update is released
+# (see https://github.com/nerdEd/gtfs/pull/33)
 module GTFS
   module Model
     module ClassMethods
