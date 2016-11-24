@@ -9,6 +9,7 @@ require "gtfs/realtime/db_schema"
 require "gtfs/gtfs_gem_patch"
 require "gtfs/realtime/configuration"
 require "gtfs/realtime/route"
+require "gtfs/realtime/service_alert"
 require "gtfs/realtime/stop"
 require "gtfs/realtime/stop_time"
 require "gtfs/realtime/stop_time_update"
@@ -21,7 +22,7 @@ module GTFS
   class Realtime
     # This is a singleton object, so everything will be on the class level
     class << self
-      attr_accessor :configuration, :static_data
+      attr_accessor :configuration
 
       def configuration
         @configuration ||= GTFS::Realtime::Configuration.new
@@ -37,7 +38,7 @@ module GTFS
       def load_static_feed!(force: false)
         return if !force && GTFS::Realtime::Route.count > 0
 
-        @static_data = GTFS::Source.build(@configuration.static_feed)
+        static_data = GTFS::Source.build(@configuration.static_feed)
 
         GTFS::Realtime::Model.db.transaction do
           GTFS::Realtime::Route.dataset.delete
@@ -97,7 +98,7 @@ module GTFS
       def refresh_realtime_feed!
         trip_updates = get_entities(@configuration.trip_updates_feed)
         vehicle_positions = get_entities(@configuration.vehicle_positions_feed)
-        alerts = get_entities(@configuration.service_alerts_feed)
+        service_alerts = get_entities(@configuration.service_alerts_feed)
 
         GTFS::Realtime::Model.db.transaction do
           GTFS::Realtime::TripUpdate.dataset.delete
@@ -141,7 +142,18 @@ module GTFS
             end
           )
 
-          # TODO: load service alerts
+          GTFS::Realtime::ServiceAlert.dataset.delete
+          GTFS::Realtime::ServiceAlert.multi_insert(
+            service_alerts.collect do |service_alert|
+              {
+                stop_id: service_alert.alert.informed_entity.first.stop_id.strip,
+                header_text: service_alert.alert.header_text.translation.first.text,
+                description_text: service_alert.alert.description_text.translation.first.text,
+                start_time: service_alert.alert.active_period.first.start,
+                end_time: service_alert.alert.active_period.first.end
+              }
+            end
+          )
         end
       end
 

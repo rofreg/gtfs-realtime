@@ -5,6 +5,7 @@ module GTFS
     class Stop < GTFS::Realtime::Model
       extend GTFS::Realtime::Nearby
 
+      one_to_many :service_alerts
       one_to_many :stop_times
       one_to_many :stop_time_updates
       many_to_many :trip_updates, join_table: :stop_time_updates
