@@ -10,10 +10,10 @@ module GTFS
           # This script sets up an in-memory DB so that it can be used by this gem.
           # It also extends Sequel::Model so that Sequel may be used independently by
           # the parent project if desired.
-          db = Sequel.sqlite(new_path)
+          db = Sequel.connect(new_path || "sqlite://")
 
           # Set up all database tables
-          db.create_table? :routes do
+          db.create_table? :gtfs_realtime_routes do
             String :id, primary_key: true
             String :short_name
             String :long_name
@@ -22,7 +22,7 @@ module GTFS
             index :id
           end
 
-          db.create_table? :shapes do
+          db.create_table? :gtfs_realtime_shapes do
             String :id
             Integer :sequence
             Double :latitude
@@ -31,7 +31,7 @@ module GTFS
             index :id
           end
 
-          db.create_table? :stops do
+          db.create_table? :gtfs_realtime_stops do
             String :id, primary_key: true
             String :name
             Double :latitude
@@ -40,7 +40,7 @@ module GTFS
             index :id
           end
 
-          db.create_table? :stop_times do
+          db.create_table? :gtfs_realtime_stop_times do
             String :trip_id
             String :stop_id
             String :arrival_time
@@ -51,7 +51,7 @@ module GTFS
             index :stop_id
           end
 
-          db.create_table? :trips do
+          db.create_table? :gtfs_realtime_trips do
             String :id, primary_key: true
             String :headsign
             String :route_id
@@ -62,7 +62,7 @@ module GTFS
             index :route_id
           end
 
-          db.create_table? :trip_updates do
+          db.create_table? :gtfs_realtime_trip_updates do
             String :id, primary_key: true
             String :trip_id
             String :route_id
@@ -70,7 +70,7 @@ module GTFS
             index :id
           end
 
-          db.create_table? :stop_time_updates do
+          db.create_table? :gtfs_realtime_stop_time_updates do
             String :trip_update_id
             String :stop_id
             Integer :arrival_delay
@@ -82,7 +82,7 @@ module GTFS
             index :stop_id
           end
 
-          db.create_table? :vehicle_positions do
+          db.create_table? :gtfs_realtime_vehicle_positions do
             String :trip_id
             String :stop_id
             Double :latitude
@@ -94,7 +94,7 @@ module GTFS
             index :stop_id
           end
 
-          db.create_table? :service_alerts do
+          db.create_table? :gtfs_realtime_service_alerts do
             String :stop_id
             String :header_text
             Text :description_text
@@ -126,4 +126,10 @@ if !defined?(GTFS::Realtime::Model)
   GTFS::Realtime::Model = Class.new(Sequel::Model)
   GTFS::Realtime::Model.plugin :many_through_many
   GTFS::Realtime::Database.path = nil
+
+  class GTFS::Realtime::Model
+    def self.implicit_table_name
+      "gtfs_realtime_#{super}".to_sym
+    end
+  end
 end
