@@ -13,6 +13,15 @@ db.create_table? :routes do
   index :id
 end
 
+db.create_table? :shapes do
+  String :id
+  Integer :sequence
+  Double :latitude
+  Double :longitude
+
+  index :id
+end
+
 db.create_table? :stops do
   String :id, primary_key: true
   String :name

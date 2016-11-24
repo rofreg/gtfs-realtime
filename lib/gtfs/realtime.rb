@@ -10,6 +10,7 @@ require "gtfs/gtfs_gem_patch"
 require "gtfs/realtime/configuration"
 require "gtfs/realtime/route"
 require "gtfs/realtime/service_alert"
+require "gtfs/realtime/shape"
 require "gtfs/realtime/stop"
 require "gtfs/realtime/stop_time"
 require "gtfs/realtime/stop_time_update"
@@ -53,6 +54,18 @@ module GTFS
             end
           )
 
+          GTFS::Realtime::Shape.dataset.delete
+          GTFS::Realtime::Shape.multi_insert(
+            static_data.shapes.collect do |shape|
+              {
+                id: shape.id.strip,
+                sequence: shape.pt_sequence,
+                latitude: shape.pt_lat.to_f,
+                longitude: shape.pt_lon.to_f
+              }
+            end
+          )
+
           GTFS::Realtime::Stop.dataset.delete
           GTFS::Realtime::Stop.multi_insert(
             static_data.stops.collect do |stop|
@@ -90,8 +103,6 @@ module GTFS
               }
             end
           )
-
-          # TODO: load shapes
         end
       end
 
