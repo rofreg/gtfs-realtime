@@ -64,6 +64,18 @@ db.create_table? :stop_time_updates do
   index :stop_id
 end
 
+db.create_table? :vehicle_positions do
+  String :trip_id
+  String :stop_id
+  Double :latitude
+  Double :longitude
+  Double :bearing
+  Time :timestamp
+
+  index :trip_id
+  index :stop_id
+end
+
 # Set up all gtfs-realtime models to use this database
 GTFS::Realtime::Model = Class.new(Sequel::Model)
 GTFS::Realtime::Model.db = db

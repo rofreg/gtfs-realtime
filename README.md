@@ -32,7 +32,6 @@ GTFS::Realtime.configure do |config|
   config.service_alerts_feed = "http://realtime.ripta.com:81/api/servicealerts"
 end
 
-
 # After calling 'configure', the gem loads all relevant GTFS info into a database.
 # This may take some time (up to a minute) depending on the size of the input data.
 # By default, gtfs-realtime uses an in-memory database, which requires reloading all

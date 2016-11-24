@@ -14,6 +14,7 @@ require "gtfs/realtime/stop_time"
 require "gtfs/realtime/stop_time_update"
 require "gtfs/realtime/trip"
 require "gtfs/realtime/trip_update"
+require "gtfs/realtime/vehicle_position"
 require "gtfs/realtime/version"
 
 module GTFS
@@ -23,7 +24,7 @@ module GTFS
       attr_accessor :configuration, :static_data
 
       def configuration
-        @configuration ||= Configuration.new
+        @configuration ||= GTFS::Realtime::Configuration.new
       end
 
       def configure
@@ -126,7 +127,20 @@ module GTFS
             end.flatten
           )
 
-          # TODO: load vehicle positions
+          GTFS::Realtime::VehiclePosition.dataset.delete
+          GTFS::Realtime::VehiclePosition.multi_insert(
+            vehicle_positions.collect do |vehicle|
+              {
+                trip_id: vehicle.vehicle.trip.trip_id.strip,
+                stop_id: vehicle.vehicle.stop_id.strip,
+                latitude: vehicle.vehicle.position.latitude.to_f,
+                longitude: vehicle.vehicle.position.longitude.to_f,
+                bearing: vehicle.vehicle.position.bearing.to_f,
+                timestamp: vehicle.vehicle.timestamp
+              }
+            end
+          )
+
           # TODO: load service alerts
         end
       end
@@ -134,7 +148,7 @@ module GTFS
       private
 
       def get_entities(path)
-        return [] if path.nil? || path.blank?
+        return [] if path.nil?
 
         data = Net::HTTP.get(URI.parse(path))
         feed = Transit_realtime::FeedMessage.decode(data)
