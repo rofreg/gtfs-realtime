@@ -4,8 +4,7 @@ module GTFS
       many_to_one :route
       many_to_many :stops, join_table: :gtfs_realtime_stop_times
       one_to_many :calendar_dates, primary_key: :service_id, key: :service_id
-
-      # TODO: find shapes by shape_id
+      one_to_many :shapes, primary_key: :shape_id, key: :id
 
       def active?(date)
         # can't use .where chaining b/c Sequel is weird

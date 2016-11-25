@@ -41,14 +41,39 @@ end
 # that you would like to use. gtfs-realtime will generate the relevant tables.
 
 @nearby = GTFS::Realtime::Stop.nearby(41.834521, -71.396906)
-stop = @nearby.first
-stop.stop_times_for_today.each do |st|
-  puts "#{st.departure_time}#{" (LIVE!)" if st.live?}: [#{st.trip.route.short_name}] #{st.trip.headsign}"
+@nearby.each do |stop|
+  puts stop.name
+  puts "-----"
+
+  # load all stop times for today, including updated live information
+  stop.stop_times_for_today.each do |st|
+    trip_info = st.trip
+    route_info = trip_info.route
+    shapes_info = trip_info.shapes
+    puts "#{st.scheduled_departure_time}: [#{st.trip.route.short_name}] #{st.trip.headsign}"
+
+    if st.live?
+      delay = st.actual_departure_delay / 60
+      delay_string = case
+        when delay < 0
+          "#{delay.abs} minute(s) early"
+        when delay > 0
+          "#{delay} minute(s) late"
+        else
+          "on time"
+        end
+
+      puts "- expected at #{st.departure_time}, #{delay_string}" if st.live?
+    end
+  end
+  puts "\n"
 end
 
-live_upcoming_bus = stop.stop_time_updates.first
-trip_info = upcoming_bus.trip
-route_info = upcoming_bus.route
+# refresh realtime info
+GTFS::Realtime.refresh_realtime_feed!
+
+# refresh static info
+GTFS::Realtime.load_static_feed!(force: true)
 ```
 
 ## Development
