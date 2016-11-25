@@ -1,4 +1,4 @@
-# gtfs-realtime
+# gtfs-realtime [![Build Status](https://travis-ci.org/rofreg/gtfs-realtime.svg?branch=master)](https://travis-ci.org/rofreg/gtfs-realtime)
 
 gfts-realtime is a gem to interact with realtime transit data presented in the [GTFS Realtime format](https://developers.google.com/transit/gtfs-realtime/). It was built in order to interact with the RIPTA realtime data API for the public bus system in Providence, RI.
 
