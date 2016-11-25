@@ -40,6 +40,7 @@ module GTFS
         return if !force && GTFS::Realtime::Route.count > 0
 
         static_data = GTFS::Source.build(@configuration.static_feed)
+        return unless static_data
 
         GTFS::Realtime::Model.db.transaction do
           GTFS::Realtime::Route.dataset.delete
