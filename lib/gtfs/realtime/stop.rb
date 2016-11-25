@@ -8,8 +8,8 @@ module GTFS
       one_to_many :service_alerts
       one_to_many :stop_times
       one_to_many :stop_time_updates
-      many_to_many :trip_updates, join_table: :stop_time_updates
-      many_to_many :trips, join_table: :stop_times
+      many_to_many :trip_updates, join_table: :gtfs_realtime_stop_time_updates
+      many_to_many :trips, join_table: :gtfs_realtime_stop_times
       many_through_many :routes, through: [
         [:stop_times, :stop_id, :trip_id],
         [:trips, :id, :route_id]
