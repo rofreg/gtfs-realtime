@@ -13,6 +13,16 @@ module GTFS
           db = Sequel.connect(new_path || "sqlite://")
 
           # Set up all database tables
+          db.create_table? :gtfs_realtime_calendar_dates do
+            Integer :id, primary_key: true
+            String :service_id
+            Date :date
+            Integer :exception_type
+
+            index :id
+            index :service_id
+          end
+
           db.create_table? :gtfs_realtime_routes do
             String :id, primary_key: true
             String :short_name
@@ -57,6 +67,7 @@ module GTFS
             String :route_id
             String :service_id
             String :shape_id
+            Integer :direction_id
 
             index :id
             index :route_id

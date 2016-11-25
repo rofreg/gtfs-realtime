@@ -7,6 +7,7 @@ require "sqlite3"
 require "gtfs/realtime/database"
 
 require "gtfs/gtfs_gem_patch"
+require "gtfs/realtime/calendar_date"
 require "gtfs/realtime/configuration"
 require "gtfs/realtime/route"
 require "gtfs/realtime/service_alert"
@@ -43,6 +44,17 @@ module GTFS
         return unless static_data
 
         GTFS::Realtime::Model.db.transaction do
+          GTFS::Realtime::CalendarDate.dataset.delete
+          GTFS::Realtime::CalendarDate.multi_insert(
+            static_data.calendar_dates.collect do |calendar_date|
+              {
+                service_id: calendar_date.service_id.strip,
+                date: Date.strptime(calendar_date.date, "%Y%m%d"),
+                exception_type: calendar_date.exception_type
+              }
+            end
+          )
+
           GTFS::Realtime::Route.dataset.delete
           GTFS::Realtime::Route.multi_insert(
             static_data.routes.collect do |route|
@@ -100,7 +112,8 @@ module GTFS
                 headsign: trip.headsign.strip,
                 route_id: trip.route_id.strip,
                 service_id: trip.service_id.strip,
-                shape_id: trip.shape_id.strip
+                shape_id: trip.shape_id.strip,
+                direction_id: trip.direction_id
               }
             end
           )
@@ -174,7 +187,11 @@ module GTFS
       def get_entities(path)
         return [] if path.nil?
 
-        data = Net::HTTP.get(URI.parse(path))
+        if File.exists?(path)
+          data = File.open(path, 'r'){|f| f.read}
+        else
+          data = Net::HTTP.get(URI.parse(path))
+        end
         feed = Transit_realtime::FeedMessage.decode(data)
         feed.entity   # array of entities
       end
