@@ -42,7 +42,11 @@ end
 
 @nearby = GTFS::Realtime::Stop.nearby(41.834521, -71.396906)
 stop = @nearby.first
-upcoming_bus = stop.stop_time_updates.first
+stop.stop_times_for_today.each do |st|
+  puts "#{st.departure_time}: [#{st.trip.route.short_name}] #{st.trip.headsign}"
+end
+
+live_upcoming_bus = stop.stop_time_updates.first
 trip_info = upcoming_bus.trip
 route_info = upcoming_bus.route
 ```
