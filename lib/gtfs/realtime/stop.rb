@@ -21,7 +21,7 @@ module GTFS
 
       def stop_times_schedule_for(date)
         # TODO: .all.first is a weird syntax to do eager loading correctly. Maybe there's a better way?
-        self_with_eager_loads = GTFS::Realtime::Stop.where(id: id).eager(stop_times: {trip: [:calendar_dates, :route]}).all.first
+        self_with_eager_loads = GTFS::Realtime::Stop.where(id: id).eager(stop_times: {trip: [:calendar_dates, :route, :shapes]}).all.first
         self_with_eager_loads.stop_times.select{|st| st.trip.active?(Date.today)}.sort_by{|st| st.departure_time}
       end
 
