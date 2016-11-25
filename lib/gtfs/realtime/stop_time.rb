@@ -37,7 +37,8 @@ module GTFS
 
       private
 
-      def self.parse_time(time)
+      def self.parse_time(time, date = Date.today)
+        # TODO: handle case where date != Date.today
         day_adjustment = 0
         hour = time[0...2].to_i
 
