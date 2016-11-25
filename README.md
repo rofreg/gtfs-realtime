@@ -47,10 +47,10 @@ end
 
   # load all stop times for today, including updated live information
   stop.stop_times_for_today.each do |st|
-    trip_info = st.trip
-    route_info = trip_info.route
-    shapes_info = trip_info.shapes
-    puts "#{st.scheduled_departure_time}: [#{st.trip.route.short_name}] #{st.trip.headsign}"
+    trip = st.trip
+    route = trip.route
+    shapes = shapes
+    puts "#{st.scheduled_departure_time}: [#{route.short_name}] #{trip.headsign}"
 
     if st.live?
       delay = st.actual_departure_delay / 60
