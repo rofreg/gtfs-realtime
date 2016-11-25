@@ -4,10 +4,7 @@ module GTFS
       ADDED = 1
       REMOVED = 2
 
-      def trip
-        # TODO: can this be made into a Sequel association?
-        GTFS::Realtime::Trip.where(service_id: service_id).first
-      end
+      many_to_one :trip, primary_key: :service_id, key: :service_id
     end
   end
 end
