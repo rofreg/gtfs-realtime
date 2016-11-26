@@ -129,14 +129,10 @@ module GTFS
   end
 end
 
-# If we have not defined our model parent class yet, initialize it. Before we can
-# load any other model files, we must have some sort of database set up, so we
-# use an in-memory database for now. Later on, we can change this if we wish by
-# setting `database_path` in a `GTFS::Realtime.configure` block.
+# If we have not defined our model parent class yet, initialize it.
 if !defined?(GTFS::Realtime::Model)
   GTFS::Realtime::Model = Class.new(Sequel::Model)
   GTFS::Realtime::Model.plugin :many_through_many
-  GTFS::Realtime::Database.path = nil
 
   class GTFS::Realtime::Model
     def self.implicit_table_name
