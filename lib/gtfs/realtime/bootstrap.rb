@@ -123,9 +123,9 @@ module GTFS
                   trip_update_id: trip_update.id.strip,
                   stop_id: stop_time_update.stop_id.strip,
                   arrival_delay: stop_time_update.arrival ? stop_time_update.arrival.delay : nil,
-                  arrival_time: stop_time_update.arrival ? stop_time_update.arrival.time : nil,
+                  arrival_time: stop_time_update.arrival ? Time.at(stop_time_update.arrival.time) : nil,
                   departure_delay: stop_time_update.departure ? stop_time_update.departure.delay : nil,
-                  departure_time: stop_time_update.departure ? stop_time_update.departure.time : nil,
+                  departure_time: stop_time_update.departure ? Time.at(stop_time_update.departure.time) : nil,
                 }
               end
             end.flatten
@@ -140,7 +140,7 @@ module GTFS
                 latitude: vehicle.vehicle.position.latitude.to_f,
                 longitude: vehicle.vehicle.position.longitude.to_f,
                 bearing: vehicle.vehicle.position.bearing.to_f,
-                timestamp: vehicle.vehicle.timestamp
+                timestamp: Time.at(vehicle.vehicle.timestamp)
               }
             end
           )
@@ -152,8 +152,8 @@ module GTFS
                 stop_id: service_alert.alert.informed_entity.first.stop_id.strip,
                 header_text: service_alert.alert.header_text.translation.first.text,
                 description_text: service_alert.alert.description_text.translation.first.text,
-                start_time: service_alert.alert.active_period.first.start,
-                end_time: service_alert.alert.active_period.first.end
+                start_time: Time.at(service_alert.alert.active_period.first.start),
+                end_time: Time.at(service_alert.alert.active_period.first.end)
               }
             end
           )
