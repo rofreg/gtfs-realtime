@@ -14,12 +14,10 @@ module GTFS
 
           # Set up all database tables
           db.create_table? :gtfs_realtime_calendar_dates do
-            Integer :id, primary_key: true
             String :service_id
             Date :date
             Integer :exception_type
 
-            index :id
             index :service_id
           end
 
