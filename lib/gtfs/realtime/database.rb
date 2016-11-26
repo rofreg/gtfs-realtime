@@ -35,8 +35,8 @@ module GTFS
           db.create_table? :gtfs_realtime_shapes do
             String :id
             Integer :sequence
-            Double :latitude
-            Double :longitude
+            Float :latitude
+            Float :longitude
 
             index :id
           end
@@ -44,8 +44,8 @@ module GTFS
           db.create_table? :gtfs_realtime_stops do
             String :id, primary_key: true
             String :name
-            Double :latitude
-            Double :longitude
+            Float :latitude
+            Float :longitude
 
             index :id
           end
@@ -96,9 +96,9 @@ module GTFS
           db.create_table? :gtfs_realtime_vehicle_positions do
             String :trip_id
             String :stop_id
-            Double :latitude
-            Double :longitude
-            Double :bearing
+            Float :latitude
+            Float :longitude
+            Float :bearing
             Time :timestamp
 
             index :trip_id
