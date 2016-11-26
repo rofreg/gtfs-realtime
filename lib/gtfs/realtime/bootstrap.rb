@@ -62,7 +62,7 @@ module GTFS
             static_data.stops.collect do |stop|
               {
                 id: stop.id.strip,
-                name: stop.name,
+                name: stop.name.strip,
                 latitude: stop.lat.to_f,
                 longitude: stop.lon.to_f
               }
