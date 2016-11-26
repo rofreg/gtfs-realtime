@@ -43,7 +43,7 @@ module GTFS
         hour = time[0...2].to_i
 
         # handle timestamps like "24:30"
-        if hour > 24
+        if hour >= 24
           days = hour / 24
           time[0...2] = (hour % 24).to_s.rjust(2, '0')
         end
