@@ -3,7 +3,7 @@ require "gtfs/realtime/nearby"
 module GTFS
   class Realtime
     class Stop < GTFS::Realtime::Model
-      extend GTFS::Realtime::Nearby
+      include GTFS::Realtime::Nearby
 
       one_to_many :service_alerts
       one_to_many :stop_times
