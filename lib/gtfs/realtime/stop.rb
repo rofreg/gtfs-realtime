@@ -8,15 +8,16 @@ module GTFS
       one_to_many :service_alerts
       one_to_many :stop_times
       one_to_many :stop_time_updates
-      many_to_many :trip_updates, join_table: :gtfs_realtime_stop_time_updates
+      many_to_many :trip_updates, join_table: :gtfs_realtime_stop_times, right_key: :trip_id, right_primary_key: :trip_id
       many_to_many :trips, join_table: :gtfs_realtime_stop_times
+
       many_through_many :routes, through: [
-        [:stop_times, :stop_id, :trip_id],
-        [:trips, :id, :route_id]
+        [:gtfs_realtime_stop_times, :stop_id, :trip_id],
+        [:gtfs_realtime_trips, :id, :route_id]
       ]
       many_through_many :active_routes, class: GTFS::Realtime::Route, through: [
-        [:stop_time_updates, :stop_id, :trip_update_id],
-        [:trip_updates, :id, :route_id]
+        [:gtfs_realtime_stop_time_updates, :stop_id, :trip_update_id],
+        [:gtfs_realtime_trip_updates, :id, :route_id]
       ]
 
       def stop_times_schedule_for(date)
