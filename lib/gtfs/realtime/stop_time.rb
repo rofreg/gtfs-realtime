@@ -5,6 +5,7 @@ module GTFS
       many_to_one :stop
 
       attr_accessor :actual_arrival_time, :actual_arrival_delay, :actual_departure_time, :actual_departure_delay
+      attr_accessor :mod_type
 
       def live?
         actual_arrival_time || actual_arrival_delay || actual_departure_time || actual_departure_delay
@@ -27,12 +28,35 @@ module GTFS
       end
 
       def set(val)
+        @mod_type = "set"
         return super(val) unless val.is_a?(GTFS::Realtime::StopTimeUpdate)
 
         @actual_arrival_time = val.arrival_time
         @actual_arrival_delay = val.arrival_delay
         @actual_departure_time = val.departure_time
         @actual_departure_delay = val.departure_delay
+      end
+
+      def set_delay(stop_time_update)
+        @mod_type = "set_delay"
+        @actual_arrival_delay = stop_time_update.arrival_delay
+        puts "Actual arrival delay, carried over: #{@actual_arrival_delay}"
+        @actual_arrival_time = scheduled_arrival_time + @actual_arrival_delay if @actual_arrival_delay
+        @actual_departure_delay = stop_time_update.departure_delay
+        @actual_departure_time = scheduled_departure_time + @actual_departure_delay if @actual_departure_delay
+      end
+
+      def mark_as_departed
+        @mod_type = "mark_as_departed"
+
+        # if we've already passed the scheduled time, no need to change anything
+        return if arrival_time < Time.now - 60 && departure_time < Time.now - 60
+
+        # but if we haven't passed the scheduled time (e.g. the bus came and left early), we need to adjust
+        @actual_arrival_time = Time.now - 60
+        @actual_arrival_delay = @actual_arrival_time - Time.now
+        @actual_departure_time = Time.now - 60
+        @actual_departure_delay = @actual_departure_time - Time.now
       end
 
       private
