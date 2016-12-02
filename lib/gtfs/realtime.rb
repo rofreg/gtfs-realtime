@@ -18,6 +18,9 @@ module GTFS
       def configure
         yield(configuration)
 
+        # we must have a database by this point, so initialize the other models
+        require 'gtfs/realtime/bootstrap'
+
         run_migrations
         load_static_feed!
         refresh_realtime_feed!
