@@ -6,9 +6,12 @@ module GTFS
       def database_path=(new_path)
         @database_path = new_path
 
+        # ActiveRecord::Base.establish_connection(new_path)
+        ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: "dbfile.db")
+
         # now that we know the DB path, we can initialize the database
-        require 'gtfs/realtime/database'
-        GTFS::Realtime::Database.path = database_path
+        # require 'gtfs/realtime/database'
+        # GTFS::Realtime::Database.path = database_path
 
         # now that we have a database, initialize all the other models
         require 'gtfs/realtime/bootstrap'

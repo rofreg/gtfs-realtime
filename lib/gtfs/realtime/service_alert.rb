@@ -1,7 +1,7 @@
 module GTFS
   class Realtime
     class ServiceAlert < GTFS::Realtime::Model
-      many_to_one :stop
+      belongs_to :stop
     end
   end
 end

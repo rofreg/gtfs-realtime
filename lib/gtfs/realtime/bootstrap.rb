@@ -1,3 +1,5 @@
+require "bulk_insert"
+
 require "gtfs/gtfs_gem_patch"
 require "gtfs/realtime/calendar_date"
 require "gtfs/realtime/route"
@@ -21,9 +23,9 @@ module GTFS
         static_data = GTFS::Source.build(@configuration.static_feed)
         return unless static_data
 
-        GTFS::Realtime::Model.db.transaction do
-          GTFS::Realtime::CalendarDate.dataset.delete
-          GTFS::Realtime::CalendarDate.multi_insert(
+        GTFS::Realtime::Model.transaction do
+          GTFS::Realtime::CalendarDate.delete_all
+          GTFS::Realtime::CalendarDate.bulk_insert(values:
             static_data.calendar_dates.collect do |calendar_date|
               {
                 service_id: calendar_date.service_id.strip,
@@ -33,8 +35,8 @@ module GTFS
             end
           )
 
-          GTFS::Realtime::Route.dataset.delete
-          GTFS::Realtime::Route.multi_insert(
+          GTFS::Realtime::Route.delete_all
+          GTFS::Realtime::Route.bulk_insert(:id, :short_name, :long_name, :url, values:
             static_data.routes.collect do |route|
               {
                 id: route.id.strip,
@@ -45,8 +47,8 @@ module GTFS
             end
           )
 
-          GTFS::Realtime::Shape.dataset.delete
-          GTFS::Realtime::Shape.multi_insert(
+          GTFS::Realtime::Shape.delete_all
+          GTFS::Realtime::Shape.bulk_insert(:id, :sequence, :latitude, :longitude, values:
             static_data.shapes.collect do |shape|
               {
                 id: shape.id.strip,
@@ -57,8 +59,8 @@ module GTFS
             end
           )
 
-          GTFS::Realtime::Stop.dataset.delete
-          GTFS::Realtime::Stop.multi_insert(
+          GTFS::Realtime::Stop.delete_all
+          GTFS::Realtime::Stop.bulk_insert(:id, :name, :latitude, :longitude, values:
             static_data.stops.collect do |stop|
               {
                 id: stop.id.strip,
@@ -69,8 +71,8 @@ module GTFS
             end
           )
 
-          GTFS::Realtime::StopTime.dataset.delete
-          GTFS::Realtime::StopTime.multi_insert(
+          GTFS::Realtime::StopTime.delete_all
+          GTFS::Realtime::StopTime.bulk_insert(values:
             static_data.stop_times.collect do |stop_time|
               {
                 stop_id: stop_time.stop_id.strip,
@@ -82,8 +84,8 @@ module GTFS
             end
           )
 
-          GTFS::Realtime::Trip.dataset.delete
-          GTFS::Realtime::Trip.multi_insert(
+          GTFS::Realtime::Trip.delete_all
+          GTFS::Realtime::Trip.bulk_insert(:id, :headsign, :route_id, :service_id, :shape_id, :direction_id, values:
             static_data.trips.collect do |trip|
               {
                 id: trip.id.strip,
@@ -103,9 +105,9 @@ module GTFS
         vehicle_positions = get_entities(@configuration.vehicle_positions_feed)
         service_alerts = get_entities(@configuration.service_alerts_feed)
 
-        GTFS::Realtime::Model.db.transaction do
-          GTFS::Realtime::TripUpdate.dataset.delete
-          GTFS::Realtime::TripUpdate.multi_insert(
+        GTFS::Realtime::Model.transaction do
+          GTFS::Realtime::TripUpdate.delete_all
+          GTFS::Realtime::TripUpdate.bulk_insert(:id, :trip_id, :route_id, values:
             trip_updates.collect do |trip_update|
               {
                 id: trip_update.id.strip,
@@ -115,8 +117,8 @@ module GTFS
             end
           )
 
-          GTFS::Realtime::StopTimeUpdate.dataset.delete
-          GTFS::Realtime::StopTimeUpdate.multi_insert(
+          GTFS::Realtime::StopTimeUpdate.delete_all
+          GTFS::Realtime::StopTimeUpdate.bulk_insert(values:
             trip_updates.collect do |trip_update|
               trip_update.trip_update.stop_time_update.collect do |stop_time_update|
                 {
@@ -131,8 +133,8 @@ module GTFS
             end.flatten
           )
 
-          GTFS::Realtime::VehiclePosition.dataset.delete
-          GTFS::Realtime::VehiclePosition.multi_insert(
+          GTFS::Realtime::VehiclePosition.delete_all
+          GTFS::Realtime::VehiclePosition.bulk_insert(values:
             vehicle_positions.collect do |vehicle|
               {
                 trip_id: vehicle.vehicle.trip.trip_id.strip,
@@ -145,8 +147,8 @@ module GTFS
             end
           )
 
-          GTFS::Realtime::ServiceAlert.dataset.delete
-          GTFS::Realtime::ServiceAlert.multi_insert(
+          GTFS::Realtime::ServiceAlert.delete_all
+          GTFS::Realtime::ServiceAlert.bulk_insert(values:
             service_alerts.collect do |service_alert|
               {
                 stop_id: service_alert.alert.informed_entity.first.stop_id.strip,

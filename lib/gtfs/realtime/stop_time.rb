@@ -1,8 +1,9 @@
 module GTFS
   class Realtime
     class StopTime < GTFS::Realtime::Model
-      many_to_one :trip
-      many_to_one :stop
+      belongs_to :trip
+      belongs_to :trip_update, primary_key: :trip_id, foreign_key: :trip_id
+      belongs_to :stop
 
       attr_accessor :actual_arrival_time, :actual_arrival_delay, :actual_departure_time, :actual_departure_delay
 

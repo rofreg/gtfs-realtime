@@ -1,8 +1,9 @@
 require "google/transit/gtfs-realtime.pb"
 require "gtfs"
-require "sequel"
+require "active_record"
 
 require "gtfs/realtime/configuration"
+require "gtfs/realtime/model"
 
 module GTFS
   class Realtime
@@ -17,8 +18,18 @@ module GTFS
       def configure
         yield(configuration)
 
+        run_migrations
         load_static_feed!
         refresh_realtime_feed!
+      end
+
+      private
+
+      def run_migrations
+        ActiveRecord::Base.logger = Logger.new(STDOUT)
+        # ActiveRecord::Migration.verbose = true
+        ActiveRecord::Migration.verbose = false
+        ActiveRecord::Migrator.migrate(File.expand_path("../realtime/migrations", __FILE__))
       end
     end
   end
