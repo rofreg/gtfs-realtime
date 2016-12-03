@@ -48,7 +48,7 @@ module GTFS
           time[0...2] = (hour % 24).to_s.rjust(2, '0')
         end
 
-        Time.parse("#{date} #{time}") + day_adjustment * 60 * 60 * 24
+        Time.parse("#{date} #{time}").in_time_zone(Time.zone) + day_adjustment * 60 * 60 * 24
       end
     end
   end
