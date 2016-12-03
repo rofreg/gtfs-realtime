@@ -5,8 +5,8 @@ module GTFS
     class VehiclePosition < GTFS::Realtime::Model
       include GTFS::Realtime::Nearby
 
-      many_to_one :stop
-      many_to_one :trip
+      belongs_to :stop
+      belongs_to :trip
     end
   end
 end

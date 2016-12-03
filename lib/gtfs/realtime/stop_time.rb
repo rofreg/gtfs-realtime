@@ -1,8 +1,9 @@
 module GTFS
   class Realtime
     class StopTime < GTFS::Realtime::Model
-      many_to_one :trip
-      many_to_one :stop
+      belongs_to :trip
+      belongs_to :trip_update, primary_key: :trip_id, foreign_key: :trip_id
+      belongs_to :stop
 
       attr_accessor :actual_arrival_time, :actual_arrival_delay, :actual_departure_time, :actual_departure_delay
 
@@ -38,7 +39,6 @@ module GTFS
       private
 
       def self.parse_time(time, date = Date.today)
-        # TODO: handle case where date != Date.today
         day_adjustment = 0
         hour = time[0...2].to_i
 
@@ -48,7 +48,7 @@ module GTFS
           time[0...2] = (hour % 24).to_s.rjust(2, '0')
         end
 
-        Time.parse(time) + day_adjustment * 60 * 60 * 24
+        Time.parse("#{date} #{time}").in_time_zone(Time.zone) + day_adjustment * 60 * 60 * 24
       end
     end
   end

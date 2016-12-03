@@ -30,14 +30,16 @@ GTFS::Realtime.configure do |config|
   config.trip_updates_feed = "http://realtime.ripta.com:81/api/tripupdates"
   config.vehicle_positions_feed = "http://realtime.ripta.com:81/api/vehiclepositions"
   config.service_alerts_feed = "http://realtime.ripta.com:81/api/servicealerts"
-  config.database_path = "sqlite://database.db"    # leave unset to use an in-memory database
+  config.database_url = "sqlite3:////Users/rofreg/database.db"
+  # leave database_url unset to use your existing ActiveRecord DB, or
+  # set it to `nil` to use an in-memory SQLite database
 end
 
 # After calling 'configure', the gem loads all relevant GTFS info into a database.
 # This may take some time (up to a minute) depending on the size of the input data.
 # By default, gtfs-realtime uses an in-memory database, which requires reloading all
 # data from scratch on each launch. If you'd like to use a persistent database instead,
-# set 'config.database_path' above, and include a scheme/protocol path for the DB type
+# set 'config.database_url' above, and include a scheme/protocol path for the DB type
 # that you would like to use. gtfs-realtime will generate the relevant tables.
 
 @nearby = GTFS::Realtime::Stop.nearby(41.834521, -71.396906)

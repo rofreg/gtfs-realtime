@@ -4,7 +4,7 @@ module GTFS
       ADDED = 1
       REMOVED = 2
 
-      many_to_one :trip, primary_key: :service_id, key: :service_id
+      belongs_to :trip, primary_key: :service_id, foreign_key: :service_id
     end
   end
 end

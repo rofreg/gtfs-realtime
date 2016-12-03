@@ -29,5 +29,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "gtfs-realtime-bindings"
   spec.add_dependency "gtfs"
-  spec.add_dependency "sequel"
+  spec.add_dependency "activerecord"
+  spec.add_dependency "bulk_insert"
 end
