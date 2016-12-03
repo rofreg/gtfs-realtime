@@ -11,7 +11,7 @@ GTFS::Realtime.configure do |config|
   config.trip_updates_feed = "http://realtime.ripta.com:81/api/tripupdates"
   config.vehicle_positions_feed = "http://realtime.ripta.com:81/api/vehiclepositions"
   config.service_alerts_feed = "http://realtime.ripta.com:81/api/servicealerts"
-  config.database_path = "sqlite3:///#{URI.escape(File.expand_path("../../database.db", __FILE__))}"
+  config.database_url = "sqlite3:///#{URI.escape(File.expand_path("../../database.db", __FILE__))}"
 end
 
 def reload!
