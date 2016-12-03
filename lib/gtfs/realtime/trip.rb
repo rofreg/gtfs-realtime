@@ -8,8 +8,7 @@ module GTFS
       has_many :shapes, primary_key: :shape_id, foreign_key: :id
 
       def active?(date)
-        # can't use .where chaining b/c Sequel is weird
-        calendar_dates.find{|cd| cd.exception_type == GTFS::Realtime::CalendarDate::ADDED && cd.date == date}
+        calendar_dates.where(exception_type: GTFS::Realtime::CalendarDate::ADDED, date: date).any?
       end
     end
   end

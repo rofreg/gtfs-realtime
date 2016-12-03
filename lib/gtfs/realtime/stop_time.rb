@@ -39,7 +39,6 @@ module GTFS
       private
 
       def self.parse_time(time, date = Date.today)
-        # TODO: handle case where date != Date.today
         day_adjustment = 0
         hour = time[0...2].to_i
 
@@ -49,7 +48,7 @@ module GTFS
           time[0...2] = (hour % 24).to_s.rjust(2, '0')
         end
 
-        Time.parse(time) + day_adjustment * 60 * 60 * 24
+        Time.parse("#{date} #{time}") + day_adjustment * 60 * 60 * 24
       end
     end
   end

@@ -10,15 +10,8 @@ module GTFS
       has_many :stop_time_updates
       has_many :trips, through: :stop_times
       has_many :trip_updates, through: :stop_times
-
-      # many_through_many :routes, through: [
-      #   [:gtfs_realtime_stop_times, :stop_id, :trip_id],
-      #   [:gtfs_realtime_trips, :id, :route_id]
-      # ]
-      # many_through_many :active_routes, class: GTFS::Realtime::Route, through: [
-      #   [:gtfs_realtime_stop_time_updates, :stop_id, :trip_update_id],
-      #   [:gtfs_realtime_trip_updates, :id, :route_id]
-      # ]
+      has_many :routes, through: :trips
+      has_many :active_routes, through: :trip_updates, source: :route
 
       def stop_times_schedule_for(date)
         stop_times.includes(trip: [:calendar_dates, :route, :shapes]).select{|st| st.trip.active?(date)}.sort_by{|st| st.departure_time}
