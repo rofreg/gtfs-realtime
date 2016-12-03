@@ -56,9 +56,9 @@ class CreateGtfsTables < ActiveRecord::Migration[5.0]
       t.string :trip_update_id, index: true
       t.string :stop_id, index: true
       t.integer :arrival_delay
-      t.time :arrival_time
+      t.timestamp :arrival_time
       t.integer :departure_delay
-      t.time :departure_time
+      t.timestamp :departure_time
     end
 
     create_table :gtfs_realtime_vehicle_positions, id: false do |t|
@@ -67,15 +67,15 @@ class CreateGtfsTables < ActiveRecord::Migration[5.0]
       t.float :latitude
       t.float :longitude
       t.float :bearing
-      t.time :timestamp
+      t.timestamp :timestamp
     end
 
     create_table :gtfs_realtime_service_alerts, id: false do |t|
       t.string :stop_id, index: true
       t.string :header_text
       t.text :description_text
-      t.time :start_time
-      t.time :end_time
+      t.timestamp :start_time
+      t.timestamp :end_time
     end
   end
 end
