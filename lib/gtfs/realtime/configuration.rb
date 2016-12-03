@@ -5,7 +5,12 @@ module GTFS
 
       def database_url=(new_path)
         @database_url = new_path
-        ActiveRecord::Base.establish_connection(@database_url)
+
+        if @database_url
+          ActiveRecord::Base.establish_connection(@database_url)
+        else
+          ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
+        end
       end
     end
   end

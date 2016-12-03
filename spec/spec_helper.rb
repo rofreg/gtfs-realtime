@@ -10,4 +10,6 @@ RSpec.configure do |config|
     stub_request(:get, STATIC_FEED_URL).
       to_return(status: 200, body: File.open("./spec/fixtures/google_transit.zip"){|f| f.read}, headers: {})
   end
+
+  ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
 end

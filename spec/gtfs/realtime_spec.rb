@@ -14,7 +14,7 @@ describe GTFS::Realtime do
   end
 
   it "loads static GTFS data into a database" do
-    expect(GTFS::Realtime::Route).to receive(:multi_insert)
+    expect(GTFS::Realtime::Route).to receive(:bulk_insert)
 
     GTFS::Realtime.configure do |config|
       config.static_feed = STATIC_FEED_URL

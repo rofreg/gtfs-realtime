@@ -30,7 +30,9 @@ GTFS::Realtime.configure do |config|
   config.trip_updates_feed = "http://realtime.ripta.com:81/api/tripupdates"
   config.vehicle_positions_feed = "http://realtime.ripta.com:81/api/vehiclepositions"
   config.service_alerts_feed = "http://realtime.ripta.com:81/api/servicealerts"
-  config.database_url = "sqlite3:////Users/rofreg/database.db"  # leave unset to use your existing ActiveRecord DB
+  config.database_url = "sqlite3:////Users/rofreg/database.db"
+  # leave database_url unset to use your existing ActiveRecord DB, or
+  # set it to `nil` to use an in-memory SQLite database
 end
 
 # After calling 'configure', the gem loads all relevant GTFS info into a database.
