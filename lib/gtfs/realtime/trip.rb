@@ -8,7 +8,11 @@ module GTFS
       has_many :shapes, primary_key: :shape_id, foreign_key: :id
 
       def active?(date)
-        calendar_dates.where(exception_type: GTFS::Realtime::CalendarDate::ADDED, date: date).any?
+        if calendar_dates.loaded?
+          calendar_dates.find{|cd| cd.exception_type == GTFS::Realtime::CalendarDate::ADDED && cd.date == date}
+        else
+          calendar_dates.where(exception_type: GTFS::Realtime::CalendarDate::ADDED, date: date).any?
+        end
       end
     end
   end
