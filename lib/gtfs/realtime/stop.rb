@@ -14,7 +14,7 @@ module GTFS
       has_many :active_routes, through: :trip_updates, source: :route
 
       def stop_times_schedule_for(date)
-        stop_times.includes(trip: [:calendar_dates, :route, :shapes]).select{|st| st.trip.active?(date)}.sort_by{|st| st.departure_time}
+        stop_times.includes(trip: [:calendar_dates, :route]).select{|st| st.trip.active?(date)}.sort_by{|st| st.departure_time}
       end
 
       def stop_times_for_today
