@@ -19,7 +19,7 @@ module GTFS
 
       def stop_times_for_today
         stop_times = stop_times_schedule_for(Date.today)
-        stop_time_updates.each do |stu|
+        stop_time_updates.includes(:trip_update).each do |stu|
           # find a matching existing record in the schedule
           stop_time = stop_times.find{|st| st.trip_id == stu.trip_update.trip_id}
 
