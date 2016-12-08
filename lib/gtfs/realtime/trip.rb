@@ -6,6 +6,7 @@ module GTFS
       has_many :stops, through: :stop_times
       has_many :calendar_dates, primary_key: :service_id, foreign_key: :service_id
       has_many :shapes, primary_key: :shape_id, foreign_key: :id
+      has_one :trip_update
 
       def active?(date)
         if calendar_dates.loaded?
