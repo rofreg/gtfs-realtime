@@ -26,7 +26,7 @@ module GTFS
           stop_time = stop_times.find{|st| st.trip_id == stu.trip_update.trip_id}
 
           # update its info
-          stop_time.set(stu)
+          stop_time.set(stu) if stop_time
         end
         stop_times
       end
