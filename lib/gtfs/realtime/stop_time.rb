@@ -30,9 +30,9 @@ module GTFS
       def set(val)
         return super(val) unless val.is_a?(GTFS::Realtime::StopTimeUpdate)
 
-        @actual_arrival_time = val.arrival_time
+        @actual_arrival_time = val.arrival_time || scheduled_arrival_time + val.arrival_delay
         @actual_arrival_delay = val.arrival_delay
-        @actual_departure_time = val.departure_time
+        @actual_departure_time = val.departure_time || scheduled_departure_time + val.departure_delay
         @actual_departure_delay = val.departure_delay
       end
 

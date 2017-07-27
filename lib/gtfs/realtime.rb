@@ -143,10 +143,10 @@ module GTFS
                 {
                   trip_update_id: trip_update.id.strip,
                   stop_id: stop_time_update.stop_id.strip,
-                  arrival_delay: stop_time_update.arrival ? stop_time_update.arrival.delay : nil,
-                  arrival_time: stop_time_update.arrival ? Time.at(stop_time_update.arrival.time) : nil,
-                  departure_delay: stop_time_update.departure ? stop_time_update.departure.delay : nil,
-                  departure_time: stop_time_update.departure ? Time.at(stop_time_update.departure.time) : nil,
+                  arrival_delay: stop_time_update.arrival&.delay,
+                  arrival_time: (stop_time_update.arrival&.time&.> 0) ? Time.at(stop_time_update.arrival.time) : nil,
+                  departure_delay: stop_time_update.departure&.delay,
+                  departure_time: (stop_time_update.departure&.time&.> 0) ? Time.at(stop_time_update.departure.time) : nil,
                 }
               end
             end.flatten
