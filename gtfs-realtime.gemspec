@@ -30,6 +30,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "gtfs-realtime-bindings"
   spec.add_dependency "gtfs"
   spec.add_dependency "protobuf", "< 3.7"
-  spec.add_dependency "activerecord"
+  spec.add_dependency "activerecord", "< 6.0"
   spec.add_dependency "bulk_insert"
 end
