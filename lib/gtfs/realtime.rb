@@ -195,9 +195,17 @@ module GTFS
         feed.entity   # array of entities
       end
 
+      def activerecord_below_5_2?
+        ActiveRecord.version.release < Gem::Version.new('5.2.0')
+      end
+
       def run_migrations
         ActiveRecord::Migration.verbose = false
-        ActiveRecord::Migrator.migrate(File.expand_path("../realtime/migrations", __FILE__))
+        if activerecord_below_5_2?
+          ActiveRecord::Migrator.migrate(File.expand_path("../realtime/migrations", __FILE__))
+        else
+          ActiveRecord::MigrationContext.new(File.expand_path("../realtime/migrations", __FILE__)).migrate
+        end
       end
     end
   end
